@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 		}
 		command[counter] = strtok(input, ";");
 		counter += 1;
-		while (command[counter] = strtok(NULL, ";"))
+		while ((command[counter] = strtok(NULL, ";")))
 		{
 			counter += 1;
 		}
