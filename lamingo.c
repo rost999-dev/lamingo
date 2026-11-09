@@ -9,6 +9,12 @@
 #define BIG 65536
 #define VERY_BIG 130712
 #define check(a) do { if (cmd(a)) { now += (a); if_command("$default") cmd(0) = used; if_command("$readed_text") cmd(0) = from_file; now -= (a); } } while (0)
+#ifdef _WIN32
+#include <windows.h>
+#define init_text() do { SetConsoleOutputCP(CP_UTF8);SetConsoleCP(CP_UTF8) } while(0)
+#else
+#define init_text() do {} while(0)
+#endif
 /* len of the prompt */
 #define TEXT_LEN SMALL
 /* LAMINGO */
@@ -26,20 +32,40 @@ int main(int argc, char *argv[])
 	long int now;
 	printf("LAMINGO by rost999-dev\n");
 	input = (char *)malloc(TEXT_LEN * sizeof(char));
+	if(input==NULL){
+		printf("ERROR:no memory\n");
+		exit(1);
+	}
 	input[0] = '\0';
 	used = (char *)malloc(TEXT_LEN * sizeof(char));
+	if(used==NULL){
+		printf("ERROR:no memory\n");
+		exit(1);
+	}
 	used[0] = '\0';
 	buf = (char *)malloc(TEXT_LEN * sizeof(char));
+	if(buf==NULL){
+		printf("ERROR:no memory\n");
+		exit(1);
+	}
 	buf[0] = '\0';
 	buf2 = (char *)malloc(TEXT_LEN * sizeof(char));
+	if(buf2==NULL){
+		printf("ERROR:no memory\n");
+		exit(1);
+	}
 	buf2[0] = '\0';
 	from_file = (char *)malloc(TEXT_LEN * sizeof(char));
+	if(from_file==NULL){
+		printf("ERROR:no memory\n");
+		exit(1);
+	}
 	from_file[0] = '\0';
+	memset(command, 0, sizeof(command));
 	while (1)
 	{
 		now = 0;
 		counter = 0;
-		memset(command, 0, sizeof(command));
 		printf("lamingo]}>>");
 		fflush(stdout);
 		if (argc >= 2)
@@ -60,7 +86,7 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			fgets(input, TEXT_LEN, stdin);
+			if(fgets(input, TEXT_LEN, stdin)==NULL) continue;
 			input[strcspn(input, "\n")] = 0;
 		}
 		if (strcmp(input, "") == 0)
@@ -250,7 +276,7 @@ int main(int argc, char *argv[])
 			}
 			else if_command("help")
 			{
-				printf("LAMINGO commands:\n\nlamingo_init - start the Ollama server in the background (Windows: start /b, Linux: &).\nlist - show all installed Ollama models (ollama list).\ninstall <model> - download a model from the Ollama registry (ollama pull).\ndelete <model> - remove an installed model (ollama rm).\nstart <model> - run a model in interactive mode (ollama run).\nask <model> <prompt> - send a one-time prompt to the model and print the answer.\ntell <model> <prompt> <file> - send a prompt to the model and save the answer to a file.\nset_default <value> - set the $default variable, used in later commands via check().\nread_file <file> - read a file into the $readed_text variable.\nsh <command> - execute an arbitrary shell command.\nstart_chat <name> <first_message> - create a new chat file <name>.lam_chat with the system prompt and the first user message.\nchat <name> <model> <message> - append the user message to the chat, call the model with the full history, and write the answer after 'assistant:'.\nprint_chat <name> - print the full contents of the chat file <name>.lam_chat.\nprint <text> - print text in console\nread - get input and save it in $readed_text\nload <model> <file> - load file in model and ask him(WARNING:can not work on windows beacouse ollama devs have released stdin bug,please use read_file )\nexit - exit the program\nis_running - show you a running models\nshow <model> - show full info about model\nstop <model> - stop running model\nrename <model> <name> - copy and rename model\n\nVariables:\n$default - set by set_default, substituted when passed as an argument and check() is called.\n$readed_text - set by read_file, substituted the same way.\n\nNotes:\n- Commands are separated by ';' (semicolon), so a single line can contain a whole pipeline.\n- A script file passed as argv[1] is read line by line; each newline becomes ';'.\n- Chat messages use 'user:' and 'assistant:' prefixes to mark who said what.\n");
+				printf("LAMINGO commands:\n\nlamingo_init - start the Ollama server in the background (Windows: start /b, Linux: &).\nlist - show all installed Ollama models (ollama list).\ninstall <model> - download a model from the Ollama registry (ollama pull).\ndelete <model> - remove an installed model (ollama rm).\nstart <model> - run a model in interactive mode (ollama run).\nask <model> <prompt> - send a one-time prompt to the model and print the answer.\ntell <model> <prompt> <file> - send a prompt to the model and save the answer to a file.\nset_default <value> - set the $default variable, used in later commands via check().\nread_file <file> - read a file into the $readed_text variable.\nsh <command> - execute an arbitrary shell command.\nstart_chat <name> <first_message> - create a new chat file <name>.lam_chat with the system prompt and the first user message.\nchat <name> <model> <message> - append the user message to the chat, call the model with the full history, and write the answer after 'assistant:'.\nprint_chat <name> - print the full contents of the chat file <name>.lam_chat.\nprint <text> - print text in console\nread - get input and save it in $readed_text\nload <model> <file> - load file in model and ask him(WARNING:can not work on windows beacouse ollama devs have released stdin bug,please use read_file )\nexit - exit the program\nis_running - show you a running models\nshow <model> - show full info about model\nstop <model> - stop running model\nrename <model> <name> - copy and rename model\ninit_text - set UTF text for windows\ncheck_ollama - check an ollama app and break the script if system dont have it\ntest <shell script> -if shell script dont work it break the script\n\nVariables:\n$default - set by set_default.\n$readed_text - set by read_file, substituted the same way.\n\nNotes:\n- Commands are separated by ';' (semicolon), so a single line can contain a whole pipeline.\n- A script file passed as argv[1] is read line by line; each newline becomes ';'.\n- Chat messages use 'user:' and 'assistant:' prefixes to mark who said what.\n");
 			}
 			else if_command("print"){
 				if(cmd(1)!=NULL){
@@ -260,7 +286,7 @@ int main(int argc, char *argv[])
 				}
 			}
 			else if_command("read"){
-				fgets(from_file,TEXT_LEN,stdin);
+				if(fgets(from_file, TEXT_LEN, stdin)==NULL) continue;
 				from_file[strcspn(from_file,"\n")]=0;
 			}
 			else if_command("load")
@@ -316,6 +342,29 @@ int main(int argc, char *argv[])
 					sprintf(buf, "ollama cp \"%s\" \"%s\"", cmd(1), cmd(2));
 					system(buf);
 					now += 2;
+				}
+			}
+			else if_command("init_text")
+			{
+				init_text();
+			}
+			else if_command("check_ollama")
+			{
+				if(system("ollama --version")!=0){
+					break;
+				}
+			}
+			else if_command("test")
+			{
+				if (cmd(1) != NULL)
+				{
+					check(1);
+				if(system(cmd(1))!=0)
+				{
+					now+=1;
+					break;
+				}
+				now+=1;
 				}
 			}
 			else
