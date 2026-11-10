@@ -11,7 +11,7 @@
 #define check(a) do { if (cmd(a)) { now += (a); if_command("$default") cmd(0) = used; if_command("$readed_text") cmd(0) = from_file; now -= (a); } } while (0)
 #ifdef _WIN32
 #include <windows.h>
-#define init_text() do { SetConsoleOutputCP(CP_UTF8);SetConsoleCP(CP_UTF8) } while(0)
+#define init_text() do { SetConsoleOutputCP(CP_UTF8);SetConsoleCP(CP_UTF8); } while(0)
 #else
 #define init_text() do {} while(0)
 #endif
@@ -276,7 +276,7 @@ int main(int argc, char *argv[])
 			}
 			else if_command("help")
 			{
-				printf("LAMINGO commands:\n\nlamingo_init - start the Ollama server in the background (Windows: start /b, Linux: &).\nlist - show all installed Ollama models (ollama list).\ninstall <model> - download a model from the Ollama registry (ollama pull).\ndelete <model> - remove an installed model (ollama rm).\nstart <model> - run a model in interactive mode (ollama run).\nask <model> <prompt> - send a one-time prompt to the model and print the answer.\ntell <model> <prompt> <file> - send a prompt to the model and save the answer to a file.\nset_default <value> - set the $default variable, used in later commands via check().\nread_file <file> - read a file into the $readed_text variable.\nsh <command> - execute an arbitrary shell command.\nstart_chat <name> <first_message> - create a new chat file <name>.lam_chat with the system prompt and the first user message.\nchat <name> <model> <message> - append the user message to the chat, call the model with the full history, and write the answer after 'assistant:'.\nprint_chat <name> - print the full contents of the chat file <name>.lam_chat.\nprint <text> - print text in console\nread - get input and save it in $readed_text\nload <model> <file> - load file in model and ask him(WARNING:can not work on windows beacouse ollama devs have released stdin bug,please use read_file )\nexit - exit the program\nis_running - show you a running models\nshow <model> - show full info about model\nstop <model> - stop running model\nrename <model> <name> - copy and rename model\ninit_text - set UTF text for windows\ncheck_ollama - check an ollama app and break the script if system dont have it\ntest <shell script> -if shell script dont work it break the script\n\nVariables:\n$default - set by set_default.\n$readed_text - set by read_file, substituted the same way.\n\nNotes:\n- Commands are separated by ';' (semicolon), so a single line can contain a whole pipeline.\n- A script file passed as argv[1] is read line by line; each newline becomes ';'.\n- Chat messages use 'user:' and 'assistant:' prefixes to mark who said what.\n");
+				printf("LAMINGO commands:\n\nlamingo_init - start the Ollama server in the background (Windows: start /b, Linux: &).\nlist - show all installed Ollama models (ollama list).\ninstall <model> - download a model from the Ollama registry (ollama pull).\ndelete <model> - remove an installed model (ollama rm).\nstart <model> - run a model in interactive mode (ollama run).\nask <model> <prompt> - send a one-time prompt to the model and print the answer.\ntell <model> <prompt> <file> - send a prompt to the model and save the answer to a file.\nset_default <value> - set the $default variable, used in later commands via check().\nread_file <file> - read a file into the $readed_text variable.\nsh <command> - execute an arbitrary shell command.\nstart_chat <name> <first_message> - create a new chat file <name>.lam_chat with the system prompt and the first user message.\nchat <name> <model> <message> - append the user message to the chat, call the model with the full history, and write the answer after 'assistant:'.\nprint_chat <name> - print the full contents of the chat file <name>.lam_chat.\nprint <text> - print text in console\nread - get input and save it in $readed_text\nload <model> <file> - load file in model and ask him(WARNING:can not work on windows beacouse ollama devs have released stdin bug,please use read_file )\nexit - exit the program\nis_running - show you a running models\nshow <model> - show full info about model\nstop <model> - stop running model\nrename <model> <name> - copy and rename model\ninit_text - set UTF text for windows\ncheck_ollama - check an ollama app and break the script if system dont have it\ntest <shell script> -if shell script dont work it break the script\nrun - open ollama\n\nVariables:\n$default - set by set_default.\n$readed_text - set by read_file, substituted the same way.\n\nNotes:\n- Commands are separated by ';' (semicolon), so a single line can contain a whole pipeline.\n- A script file passed as argv[1] is read line by line; each newline becomes ';'.\n- Chat messages use 'user:' and 'assistant:' prefixes to mark who said what.\n");
 			}
 			else if_command("print"){
 				if(cmd(1)!=NULL){
@@ -366,6 +366,10 @@ int main(int argc, char *argv[])
 				}
 				now+=1;
 				}
+			}
+			else if_command("run")
+			{
+				system("ollama");
 			}
 			else
 			{
